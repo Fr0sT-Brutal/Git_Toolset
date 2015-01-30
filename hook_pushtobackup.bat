@@ -10,11 +10,17 @@
 if not .%~z2.==.0. goto :EOF
 
 set Output=%TMP%\Gitpush.log
+del "%Output%" 2> nul
 
 SET CDir=%~dp0%
 
+:: Change to repo dir for git to work
 pushd "%3"
-del "%Output%"
-("%CDir%\git" push --all backup 2> "%Output%")
+:: Check if "backup" remote is present
+(git remote | findstr "backup" > nul) || (goto :End)
+:: Do the push
+("%CDir%\git" push --all "backup" 2> "%Output%")
+:: Report the result
 (start "" /wait WScript "%CDir%\MsgBox.js" "Push to backup repo result" "%Output%")
+:End
 popd
